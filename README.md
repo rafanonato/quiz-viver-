@@ -16,14 +16,15 @@ Quiz em tempo real para até 100 participantes. Cada participante responde pelo 
 | Fundo temático por pergunta | Pronto (12 temas) |
 | Painel `/admin.html` para editar perguntas, respostas, correta, tempo e tema | Pronto e testado |
 | Repositório no GitHub | Publicado (`main`) |
-| Deploy no Cloud Run | **Pendente**: falta vincular faturamento ao projeto `rafanonato1` |
-| Deploy automático pelo GitHub Actions | Arquivo pronto (`.github/workflows/deploy.yml`), ainda não ativado |
+| Testes em produção | Simulação de 50 participantes e painel (leitura, edição e restauração) passaram |
+| Deploy no Cloud Run | **No ar**: https://quiz-viver-lw2pi32efa-uc.a.run.app |
+| Deploy automático pelo GitHub Actions | Ativo: cada push na `main` faz o deploy |
 
 ---
 
 ## Como usar no dia (versão online)
 
-Quando o deploy estiver feito, a URL do serviço (ex.: `https://quiz-viver-xxxx.a.run.app`) funciona de qualquer rede. Os participantes não precisam estar no mesmo Wi-Fi.
+A URL pública do serviço é **https://quiz-viver-lw2pi32efa-uc.a.run.app** e funciona de qualquer rede. Os participantes não precisam estar no mesmo Wi-Fi.
 
 1. **Apresentador:** abra `https://<URL>/host.html` no computador e clique em **Criar novo jogo**.
 2. **Projetar a tela:** o lobby mostra o QR code, o endereço e o **PIN**.
@@ -194,7 +195,7 @@ Para ler a senha do painel depois:
 gcloud secrets versions access latest --secret=quiz-admin-password
 ```
 
-### Passo 3: primeiro deploy
+### Passo 3: primeiro deploy (já feito)
 
 Com a configuração pronta, um push na `main` dispara o workflow `.github/workflows/deploy.yml`:
 
