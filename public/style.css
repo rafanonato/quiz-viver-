@@ -1,0 +1,239 @@
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #46178f;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: #fff;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  transition: background-image .4s;
+}
+
+.lobby-main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  align-items: center;
+  justify-content: center;
+}
+.lobby-info { text-align: left; }
+.qr {
+  width: min(38vw, 320px);
+  height: auto;
+  background: #fff;
+  padding: 14px;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.35);
+}
+
+.screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 18px;
+  text-align: center;
+}
+
+h1 { font-size: clamp(2rem, 6vw, 3.5rem); margin: 0; }
+h2 { font-size: clamp(1.5rem, 4vw, 2.4rem); margin: 0; }
+p { margin: 0; }
+.muted { opacity: .8; }
+.error { color: #ffd166; min-height: 1.2em; }
+
+input {
+  width: min(90vw, 360px);
+  padding: 14px 16px;
+  font-size: 1.3rem;
+  border: none;
+  border-radius: 10px;
+  text-align: center;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: none;
+  border-radius: 10px;
+}
+button:disabled { opacity: .45; cursor: not-allowed; }
+
+button.big {
+  background: #fff;
+  color: #46178f;
+  font-size: 1.3rem;
+  font-weight: 700;
+  padding: 14px 28px;
+  margin-top: 10px;
+}
+button.secondary { background: rgba(255,255,255,.2); color: #fff; }
+button.danger { background: #e21b3c; color: #fff; }
+
+.join-url { font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 700; word-break: break-all; }
+.pin {
+  font-size: clamp(3.5rem, 14vw, 9rem);
+  font-weight: 900;
+  letter-spacing: .08em;
+  line-height: 1;
+}
+.chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 900px; }
+.chip { background: rgba(255,255,255,.2); padding: 6px 12px; border-radius: 999px; font-size: .95rem; }
+
+.timer { font-size: clamp(2.5rem, 8vw, 4rem); font-weight: 900; }
+.count { font-size: 1.1rem; font-weight: 600; }
+.question-text {
+  font-size: clamp(1.4rem, 3.6vw, 2.4rem);
+  font-weight: 700;
+  max-width: 1000px;
+  line-height: 1.25;
+}
+
+/* Cores estilo Kahoot */
+.c0 { background: #e21b3c; }
+.c1 { background: #1368ce; }
+.c2 { background: #d89e00; }
+.c3 { background: #26890c; }
+
+/* Opções (participante) */
+.answers {
+  width: 100%;
+  max-width: 640px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  flex: 1;
+  align-content: stretch;
+}
+.answer {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: #fff;
+  min-height: 130px;
+  padding: 16px;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 12px;
+  text-align: left;
+  font-weight: 600;
+}
+.answer .shape { font-size: 1.8rem; flex-shrink: 0; }
+.answer.chosen { outline: 5px solid #fff; outline-offset: -5px; }
+.answer.dim { opacity: .35; }
+.answer:disabled { cursor: default; }
+.answer:disabled:not(.chosen):not(.dim) { opacity: .7; }
+
+/* Opções (apresentador) */
+.tiles {
+  width: min(95vw, 920px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+.tile {
+  color: #fff;
+  min-height: 130px;
+  padding: 18px 22px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+  font-weight: 600;
+  text-align: left;
+}
+.tile .shape { font-size: 2rem; flex-shrink: 0; }
+.tile .label { flex: 1; }
+.tile .count-badge { font-size: 2.4rem; font-weight: 900; flex-shrink: 0; }
+.tile.wrong { opacity: .3; }
+.tile.right { outline: 6px solid #fff; outline-offset: -6px; }
+
+/* Resultado (participante) */
+.result {
+  width: 100%;
+  max-width: 560px;
+  padding: 36px 20px;
+  border-radius: 16px;
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  font-weight: 800;
+}
+.result.ok { background: #26890c; }
+.result.bad { background: #e21b3c; }
+
+/* Ranking */
+ol.board {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: min(92vw, 560px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+ol.board li {
+  display: grid;
+  grid-template-columns: 56px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255,255,255,.12);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 1.15rem;
+  text-align: left;
+}
+ol.board li.me { background: #ffd166; color: #46178f; font-weight: 700; }
+ol.board .pts { font-weight: 800; }
+ol.board .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 480px) {
+  .answer { min-height: 110px; font-size: .92rem; padding: 12px; }
+}
+
+/* ---------- Painel admin ---------- */
+.admin { justify-content: flex-start; align-items: stretch; padding-top: 24px; }
+.admin-bar { display: flex; gap: 16px; align-items: center; justify-content: center; flex-wrap: wrap; }
+.admin-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.admin .small { font-size: .9rem; }
+.muted.small { font-size: .9rem; text-align: center; }
+.qlist { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.qcard {
+  width: min(95vw, 900px);
+  background: rgba(255,255,255,.1);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+.qhead, .qfoot, .opt { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.qhead { justify-content: space-between; }
+.qtools { display: flex; gap: 6px; }
+.qcard textarea, .qcard select, .qcard .optText, .qcard .num {
+  width: auto;
+  font-size: 1rem;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+}
+.qcard textarea { width: 100%; resize: vertical; }
+.qcard .optText { flex: 1; min-width: 0; }
+.qcard .num { width: 80px; }
+.qcard label { display: flex; align-items: center; gap: 6px; }
+.qcard .thumb { width: 96px; height: 54px; object-fit: cover; border-radius: 6px; }
+.qcard button.small { padding: 6px 10px; font-size: .9rem; }
+button.small { background: #fff; color: #46178f; border-radius: 8px; }
+button.small.ghost { background: rgba(255,255,255,.2); color: #fff; }
+button.small.danger { background: #e21b3c; color: #fff; }
+.qcard input[type=radio] { width: 20px; height: 20px; padding: 0; margin: 0 4px; flex-shrink: 0; accent-color: #26890c; }
+.qcard .optText { text-align: left; }
+.admin a { color: #ffd166; }

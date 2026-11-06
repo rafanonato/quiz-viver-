@@ -1,0 +1,254 @@
+[
+  {
+    "text": "Qual é o principal objetivo do estudo de longevidade?",
+    "options": [
+      "Aumentar a expectativa de vida a qualquer custo",
+      "Evitar qualquer sinal visível de envelhecimento",
+      "Prolongar os anos vividos com saúde e funcionalidade",
+      "Fazer intervenções para retardar a idade biológica"
+    ],
+    "correct": 2,
+    "time": 20,
+    "theme": "vida"
+  },
+  {
+    "text": "Quais são as 4 doenças que mais matam no mundo?",
+    "options": [
+      "Malária, doenças cardíacas, pneumonia e câncer",
+      "Câncer, pneumonia, doenças cardíacas e diabetes",
+      "Câncer, diabetes, doenças cardíacas e demências",
+      "Doenças cardíacas, AVC, demências e pneumonia"
+    ],
+    "correct": 2,
+    "time": 20,
+    "theme": "coracao"
+  },
+  {
+    "text": "De acordo com os estudos de David Sinclair, qual é a causa primária do envelhecimento celular?",
+    "options": [
+      "A perda progressiva e irreversível do DNA nuclear devido a mutações genéticas acumuladas.",
+      "A perda da informação epigenética e a desregulação do epigenoma que faz a célula “esquecer” sua identidade.",
+      "O encurtamento inevitável dos telômeros que impede qualquer divisão celular a partir dos 50 anos.",
+      "O acúmulo exclusivo de gordura visceral no fígado e pâncreas."
+    ],
+    "correct": 1,
+    "time": 30,
+    "theme": "dna"
+  },
+  {
+    "text": "O que é a medicina 3.0?",
+    "options": [
+      "A medicina que te ajuda a monitorar marcadores no seu corpo e prevenir doenças",
+      "A medicina que usa peptídeos para atuar nas funções do corpo",
+      "A medicina que usa IA e robôs para intervenções médicas",
+      "A medicina que cura pela espiritualidade"
+    ],
+    "correct": 0,
+    "time": 20,
+    "theme": "exames"
+  },
+  {
+    "text": "Como o cortisol cronicamente elevado afeta o processo de envelhecimento?",
+    "options": [
+      "Acelera a produção de NAD+ e aumenta a sensibilidade à insulina.",
+      "Promove o encurtamento prematuro dos telômeros, aumenta a glicemia via gliconeogênese e eleva a inflamação sistêmica.",
+      "Estimula a autofagia profunda em tecidos musculares e cardíacos.",
+      "Induz a biogênese de novas mitocôndrias no cérebro."
+    ],
+    "correct": 1,
+    "time": 30,
+    "theme": "estresse"
+  },
+  {
+    "text": "Qual parâmetro de variabilidade fisiológica é o indicador mais preciso de um sistema nervoso autônomo resiliente ao estresse?",
+    "options": [
+      "Pressão Arterial Sistólica (PAS)",
+      "Variabilidade da Frequência Cardíaca (VFC / HRV)",
+      "Frequência Respiratória Noturna",
+      "Taxa Metabólica Basal (TMB)"
+    ],
+    "correct": 1,
+    "time": 20,
+    "theme": "ecg"
+  },
+  {
+    "text": "Qual destes pratos teria o melhor efeito de longevidade?",
+    "options": [
+      "Filé de tilápia, arroz integral, batata doce, feijão preparado depois de molho de 24hs",
+      "Churrasco de carne magra, pão de alho industrializado, vinagrete de vinagre de maçã orgânica",
+      "Fatias de abacate, maçã, mamão, morangos, bananas e mirtilos",
+      "Crucíferas orgânicas cozidas no vapor, ovos orgânicos, abacate, azeite extra virgem e sardinhas em lata"
+    ],
+    "correct": 3,
+    "time": 30,
+    "theme": "comida"
+  },
+  {
+    "text": "Sou louco por doces. Qual a melhor forma de comer, reduzindo os efeitos danosos da glicose no sangue?",
+    "options": [
+      "Comer uma quantidade pequena, em jejum, logo antes do treino. Um pré-treino",
+      "Comer após o treino para recuperar as energias",
+      "Comer após ter feito uma refeição completa com fibras, proteínas e gorduras",
+      "Comer quando dá aquela vontade intensa no meio da tarde"
+    ],
+    "correct": 2,
+    "time": 20,
+    "theme": "comida"
+  },
+  {
+    "text": "Em uma análise de exames voltada para longevidade, o marcador Homocisteína elevado (> 12-15 µmol/L) está frequentemente associado a:",
+    "options": [
+      "Excelente status de metilação e excesso de folato ativo.",
+      "Aumento do risco cardiovascular, neurodegeneração e deficiência de vitaminas do complexo B (B6, B9, B12).",
+      "Baixo estresse oxidativo vascular.",
+      "Alta densidade mineral óssea."
+    ],
+    "correct": 1,
+    "time": 30,
+    "theme": "exames"
+  },
+  {
+    "text": "Uma pessoa tem glicemia normal. Isso garante que ela esteja metabolicamente saudável?",
+    "options": [
+      "Sim, glicemia normal significa metabolismo saudável",
+      "Não. Pode haver alterações metabólicas antes de a glicemia aumentar",
+      "Sim, desde que seja magra",
+      "Sim, se não consumir açúcar"
+    ],
+    "correct": 1,
+    "time": 20,
+    "theme": "exames"
+  },
+  {
+    "text": "Qual característica física pode fazer grande diferença para a autonomia na velhice?",
+    "options": [
+      "Ter o menor percentual de gordura possível",
+      "Manter força e potência muscular",
+      "Ter apenas boa flexibilidade",
+      "Manter o mesmo peso dos 20 anos"
+    ],
+    "correct": 1,
+    "time": 20,
+    "theme": "treino"
+  },
+  {
+    "text": "Quais são considerados os pilares fundamentais do treinamento físico para longevidade?",
+    "options": [
+      "Crossfit, Maratona e Yoga Ashtanga",
+      "Capacidade Aeróbica de Zona 2, VO2 Máximo e Força/Estabilidade",
+      "Hidroginástica, Pilates e Calistenia Leve",
+      "Alongamento Estático, Corrida de Tiro e Fisiculturismo"
+    ],
+    "correct": 1,
+    "time": 20,
+    "theme": "treino"
+  },
+  {
+    "text": "Qual a melhor forma, sob seu controle, de não morrer?",
+    "options": [
+      "Não voar de avião",
+      "Evitar os 4 cavaleiros (diabetes, doenças cardíacas, demências e câncer)",
+      "Não ficar gripado",
+      "Se exercitar pela manhã"
+    ],
+    "correct": 1,
+    "time": 20,
+    "theme": "coracao"
+  },
+  {
+    "text": "Por que o atum em lata está na lista dos itens a evitar?",
+    "options": [
+      "Porque a lata carrega toxinas para o alimento",
+      "Porque o atum é alimentado com ração em fazendas de peixes",
+      "Porque o atum está em extinção",
+      "Porque o atum, por ser um peixe grande, carrega muitos metais pesados em sua carne"
+    ],
+    "correct": 3,
+    "time": 20,
+    "theme": "peixe"
+  },
+  {
+    "text": "O que é o Sistema Glinfático?",
+    "options": [
+      "O sistema responsável por digerir as gorduras ingeridas no jantar.",
+      "A via de circulação de linfa nos músculos esqueléticos durante o repouso.",
+      "O sistema de eliminação de resíduos metabólicos do cérebro que atua durante o sono profundo.",
+      "O mecanismo renal que filtra a ureia durante a madrugada."
+    ],
+    "correct": 2,
+    "time": 20,
+    "theme": "sono"
+  },
+  {
+    "text": "É recomendado adiar o consumo de cafeína de 90 a 120 minutos após acordar. Qual o objetivo neuroquímico dessa prática?",
+    "options": [
+      "Evitar a queda de energia (crash) no meio da tarde ao permitir a depuração natural da adenosina.",
+      "Aumentar drasticamente a produção de insulina pela manhã.",
+      "Bloquear a liberação de cortisol matinal.",
+      "Prevenir a degradação de vitamina C no estômago."
+    ],
+    "correct": 0,
+    "time": 30,
+    "theme": "cafe"
+  },
+  {
+    "text": "O exame de Insulina de Jejum é um marcador precoce de disfunção metabólica. Qual valor em jejum levanta alerta para resistência à insulina antes mesmo da glicose alterar?",
+    "options": [
+      "Abaixo de 3 µUI/mL",
+      "Valores mantidos consistentemente acima de 6 a 8 µUI/mL",
+      "Exatamente 0 µUI/mL",
+      "Qualquer valor entre 1 e 2 µUI/mL"
+    ],
+    "correct": 1,
+    "time": 20,
+    "theme": "exames"
+  },
+  {
+    "text": "O que é o Programa Viver+?",
+    "options": [
+      "Um processo clínico de otimização de saúde",
+      "Um processo de análise, ações e acompanhamento de resultados para otimizar sua saúde e longevidade",
+      "Uma comunidade que compartilha conhecimento e colabora sobre práticas de longevidade",
+      "Todas as anteriores"
+    ],
+    "correct": 3,
+    "time": 20,
+    "theme": "programa"
+  },
+  {
+    "text": "Já tenho diversos médicos que me acompanham em várias especialidades, por que ingressaria no Programa Viver+?",
+    "options": [
+      "Porque o VIVER+ substitui todas as outras especialidades",
+      "Porque todos os seus exames serão avaliados pelo Programa VIVER+",
+      "Porque no Programa VIVER+ você entenderá mais da sua saúde e trabalhará de forma preditiva e preventiva no aumento de sua longevidade",
+      "Porque no Programa VIVER+ você não terá mais nenhuma variação na sua saúde"
+    ],
+    "correct": 2,
+    "time": 30,
+    "theme": "programa"
+  },
+  {
+    "text": "É muita informação. Eu só quero ver minha saúde ótima e me sentir bem. Como vou conseguir acompanhar e seguir todas as recomendações?",
+    "options": [
+      "Receberá relatórios periódicos com seus resultados e avanços",
+      "Acompanhará sua evolução através do App VIVER+, onde terá diversas visões de marcadores e scores",
+      "Fará consultas para entender a estratégia e executar as ações de melhoria",
+      "Todas as anteriores"
+    ],
+    "correct": 3,
+    "time": 30,
+    "theme": "programa"
+  },
+  {
+    "text": "Quando posso começar no Programa VIVER+?",
+    "options": [
+      "Já, pois quero o melhor para minha saúde e meu futuro e terei um desconto especial",
+      "Vou pensar, avaliar e volto com vocês",
+      "Não quero viver mais",
+      "Esse negócio de longevidade dá trabalho demais, fiquei cansado"
+    ],
+    "correct": 0,
+    "time": 20,
+    "theme": "programa"
+  }
+]

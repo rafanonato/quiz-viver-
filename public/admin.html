@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiz — Editor de perguntas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="screen" id="login">
+    <h1>Editor de perguntas</h1>
+    <form id="loginForm" style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <input id="password" type="password" placeholder="Senha do painel" autocomplete="current-password" required>
+      <button type="submit" class="big">Entrar</button>
+      <p class="error" id="loginError"></p>
+    </form>
+    <a href="host.html" class="muted">Voltar ao painel do apresentador</a>
+  </main>
+
+  <main class="screen admin" id="editor" hidden>
+    <div class="admin-bar">
+      <h2>Editor de perguntas</h2>
+      <span class="muted" id="count"></span>
+      <a href="host.html" class="muted">Apresentador</a>
+    </div>
+    <p class="muted small">Alterações valem para os jogos criados depois de salvar. Um jogo já em andamento continua com as perguntas anteriores.</p>
+    <div class="admin-actions">
+      <button class="big" id="addBtn" type="button">+ Adicionar pergunta</button>
+      <button class="big" id="saveBtn" type="button">Salvar alterações</button>
+    </div>
+    <p class="error" id="status"></p>
+    <div id="list" class="qlist"></div>
+    <div class="admin-actions">
+      <button class="big" id="addBtn2" type="button">+ Adicionar pergunta</button>
+      <button class="big" id="saveBtn2" type="button">Salvar alterações</button>
+    </div>
+  </main>
+
+  <script src="common.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

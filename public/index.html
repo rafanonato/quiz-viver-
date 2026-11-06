@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quiz — Participar</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="screen" id="join">
+    <h1>Quiz</h1>
+    <form id="joinForm" style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+      <input id="pin" inputmode="numeric" maxlength="6" placeholder="PIN do jogo" autocomplete="off" required>
+      <input id="name" maxlength="20" placeholder="Seu apelido" autocomplete="off" required>
+      <button type="submit" class="big">Entrar</button>
+      <p class="error" id="joinError"></p>
+    </form>
+  </main>
+
+  <main class="screen" id="lobby" hidden>
+    <h2>Você está dentro!</h2>
+    <p class="pin" style="font-size:clamp(2rem,8vw,3rem)" id="myName"></p>
+    <p class="muted" id="lobbyCount"></p>
+    <p>Aguarde o apresentador começar…</p>
+  </main>
+
+  <main class="screen" id="question" hidden>
+    <div style="display:flex;justify-content:space-between;width:100%;max-width:640px;align-items:center;">
+      <span class="count" id="pQ"></span>
+      <span class="timer" id="pTimer"></span>
+    </div>
+    <p class="question-text" id="pText"></p>
+    <div class="answers" id="answers"></div>
+    <p class="muted" id="pStatus"></p>
+  </main>
+
+  <main class="screen" id="reveal" hidden>
+    <div class="result" id="resultBox"></div>
+    <p id="correctAnswer" class="muted"></p>
+    <p id="resultRank" style="font-size:1.3rem;font-weight:700;"></p>
+    <p class="muted">Aguarde a próxima pergunta…</p>
+  </main>
+
+  <main class="screen" id="ranking" hidden>
+    <h2>Ranking</h2>
+    <p id="rankYou" style="font-size:1.2rem;"></p>
+    <ol class="board" id="rankList"></ol>
+  </main>
+
+  <main class="screen" id="end" hidden>
+    <h1>Fim do quiz!</h1>
+    <p id="endText" style="font-size:1.3rem;"></p>
+    <ol class="board" id="endList"></ol>
+  </main>
+
+  <script src="common.js"></script>
+  <script src="player.js"></script>
+</body>
+</html>
