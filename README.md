@@ -1,56 +1,282 @@
 # Quiz ao vivo (estilo Kahoot)
 
-Quiz em tempo real para até 100 participantes, rodando no seu computador. Sem plataforma paga e sem dependências (só Node.js).
+Quiz em tempo real para até 100 participantes. Cada participante responde pelo celular, o apresentador controla o jogo pelo computador e o ranking aparece ao vivo. Não depende de plataforma paga: o código roda em Node.js e pode ser publicado no Google Cloud Run.
 
-## Antes da apresentação (faça hoje)
+- Repositório: https://github.com/rafanonato/quiz-viver-
+- Projeto GCP: `rafanonato1` · Região: `us-central1`
 
-1. Tenha o **Node.js** instalado (`node -v` no terminal).
-2. Teste uma vez: `node server.js` e abra `http://localhost:3000/host.html`.
-3. Teste também num celular, usando o endereço que aparece no terminal (`http://192.168.x.x:3000`).
+---
 
-## No dia
+## Status
 
-1. Conecte o computador do apresentador e os celulares **no mesmo Wi-Fi**.
-   Se o Wi-Fi do local for ruim ou tiver isolamento de clientes, use o **hotspot do celular do apresentador** e conecte o computador e os participantes nele.
-2. No terminal, dentro da pasta `kahoot`: `node server.js`
-3. No computador do apresentador, abra `http://localhost:3000/host.html` e clique em **Criar novo jogo**.
-4. Projete a tela. Os participantes veem o endereço e o **PIN** no lobby.
-5. Participantes abrem o endereço no celular, digitam o PIN e um apelido.
-6. Quando todos entrarem, clique em **Começar**.
-7. Fluxo de cada pergunta: pergunta com timer → **Revelar** (ou automático quando todos respondem ou o tempo acaba) → **Ver ranking** (opcional) → **Próxima pergunta**.
+| Item | Situação |
+|---|---|
+| Jogo local (lobby, perguntas, ranking, pódio) | Pronto e testado |
+| QR code no lobby | Pronto |
+| Fundo temático por pergunta | Pronto (12 temas) |
+| Painel `/admin.html` para editar perguntas, respostas, correta, tempo e tema | Pronto e testado |
+| Repositório no GitHub | Publicado (`main`) |
+| Deploy no Cloud Run | **Pendente**: falta vincular faturamento ao projeto `rafanonato1` |
+| Deploy automático pelo GitHub Actions | Arquivo pronto (`.github/workflows/deploy.yml`), ainda não ativado |
 
-## QR code e temas
+---
 
-- No lobby do apresentador aparece um QR code. Quem escaneia já cai na página com o PIN preenchido.
-- Cada pergunta tem um `theme` (ex.: `coracao`, `dna`, `comida`). O fundo é o SVG correspondente em `public/themes/`. Para criar um tema novo, adicione um SVG nessa pasta e use o nome dele no `theme`.
+## Como usar no dia (versão online)
 
-## Deploy no Cloud Run (próxima fase, ainda não feito)
+Quando o deploy estiver feito, a URL do serviço (ex.: `https://quiz-viver-xxxx.a.run.app`) funciona de qualquer rede. Os participantes não precisam estar no mesmo Wi-Fi.
 
-Pontos que precisam ser respeitados, porque o estado do jogo fica na memória do servidor:
+1. **Apresentador:** abra `https://<URL>/host.html` no computador e clique em **Criar novo jogo**.
+2. **Projetar a tela:** o lobby mostra o QR code, o endereço e o **PIN**.
+3. **Participantes:** escaneiam o QR code (já abre com o PIN preenchido) ou digitam o endereço e o PIN, e escolhem um apelido. Nomes repetidos ganham um número (`Ana 2`).
+4. **Começar:** quando todos entrarem, clique em **Começar**.
+5. **Cada pergunta:**
+   - aparece com o timer e o fundo do tema;
+   - a revelação acontece sozinha quando todos respondem ou quando o tempo acaba, ou o apresentador pode clicar em **Revelar resposta agora**;
+   - depois, **Ver ranking** (opcional) e **Próxima pergunta**;
+   - na última pergunta o botão vira **Ver pódio final**.
+6. **Fim:** o pódio aparece para todos. Para um novo jogo, clique em **Novo jogo** e depois em **Criar novo jogo**.
 
-- Use **uma única instância** (`--max-instances=1`) e mantenha **uma sempre ligada** (`--min-instances=1`), senão o jogo se perde se o servidor reiniciar ou escalar.
-- Use **CPU sempre alocada** (`--no-cpu-throttling`), porque os timers e as conexões em tempo real dependem do processo estar ativo.
-- Defina `PUBLIC_URL` com a URL do serviço (ex.: `https://quiz-xxxx.a.run.app`), para que o QR code aponte para o endereço público e não para um IP interno.
-- `--timeout=3600` para as conexões em tempo real não caírem cedo.
+Se o apresentador fechar a aba, basta reabrir `host.html`: o jogo continua de onde estava. Se um participante perder a conexão, ele reabre a página e volta ao jogo.
 
-## Editar as perguntas
+### Pontuação
 
-Tudo fica em `questions.json`. Cada pergunta tem:
+Resposta correta vale de **1000 pontos** (respondida no início do tempo) até **500 pontos** (no último instante). Resposta errada ou não respondida vale 0.
 
-- `text`: o enunciado
-- `options`: as alternativas (2 a 4)
-- `correct`: índice da correta, começando em 0
-- `time`: segundos para responder
+---
 
-O servidor precisa ser reiniciado depois de editar o arquivo (Ctrl+C e `node server.js`).
+## Editar perguntas, respostas, correta, tempo e tema
 
-## Pontuação
+Acesse **`/admin.html`** (ou pelo link **Editar perguntas e tempos** na tela inicial do apresentador).
 
-Resposta correta vale de 1000 pontos (resposta imediata) até 500 (no último segundo). Erro vale 0.
+1. Digite a senha do painel. Ela fica guardada só na sessão do navegador (fecha ao fechar a aba).
+2. Para cada pergunta você edita:
+   - **Enunciado** (até 300 caracteres);
+   - **Respostas** (de 2 a 4; use `+ resposta` e `×` para ajustar);
+   - **Resposta correta** (marque o círculo);
+   - **Tempo (s)** entre 5 e 120 segundos;
+   - **Tema** do fundo (com miniatura para conferir).
+3. Use **↑** e **↓** para reordenar e **Remover** para apagar.
+4. **+ Adicionar pergunta** cria uma nova no fim da lista.
+5. Clique em **Salvar alterações**. O servidor valida tudo antes de gravar: se algo estiver errado, ele mostra a mensagem indicando a pergunta e o problema, e nada é salvo.
 
-## Problemas comuns
+**Regras importantes:**
 
-- **Participante não consegue entrar:** confira se o celular está no mesmo Wi-Fi. Teste com o endereço exato que o terminal mostra.
-- **"Já existe um jogo em andamento":** só é possível criar um jogo novo depois que o anterior foi encerrado. Se o apresentador perdeu o painel com jogadores no lobby, reinicie o `node server.js`.
-- **Apresentador fechou a aba:** basta reabrir `host.html`. O jogo continua de onde estava.
-- **Participante ficou sem conexão:** ele reabre a página, e a sessão é recuperada automaticamente.
+- Alterações valem para os **jogos criados depois de salvar**. Um jogo em andamento continua com as perguntas que tinha ao ser criado.
+- No ambiente online, as perguntas ficam no **Firestore**, então sobrevivem a reinícios e novos deploys.
+- Antes do evento, faça uma revisão no painel. Quatro respostas corretas foram inferidas do conteúdo (ver "Pendências de conteúdo" abaixo).
+
+### Editar pelo arquivo (modo local)
+
+Sem `STORAGE=firestore`, o painel grava no arquivo `questions.json`. O formato é:
+
+```json
+{
+  "text": "Pergunta",
+  "options": ["Resposta A", "Resposta B", "Resposta C"],
+  "correct": 1,
+  "time": 20,
+  "theme": "coracao"
+}
+```
+
+`correct` começa em 0. Se você editar o arquivo à mão, reinicie o servidor.
+
+---
+
+## Temas visuais
+
+Cada pergunta usa um SVG da pasta `public/themes/` como fundo:
+
+`vida`, `coracao`, `dna`, `exames`, `estresse`, `ecg`, `comida`, `treino`, `peixe`, `sono`, `cafe`, `programa` (padrão, também usado no lobby).
+
+Para criar um tema novo, coloque um arquivo `nome.svg` nessa pasta. Ele aparece automaticamente no seletor do painel. Os SVGs foram desenhados para este projeto (sem direitos de terceiros). Para trocar por fotos, basta substituir os arquivos mantendo o mesmo nome.
+
+---
+
+## Pendências de conteúdo (revisar antes do evento)
+
+O PDF original marca a resposta correta com "(X)", mas quatro perguntas não tinham marcação. Escolhi a resposta pelo conteúdo:
+
+| Pergunta | Resposta usada | Motivo |
+|---|---|---|
+| 6 (sistema nervoso autônomo) | VFC / HRV | Indicador clássico de resiliência ao estresse |
+| 18 (O que é o Viver+) | "Todas as anteriores" | Opções 1 a 3 descrevem partes do programa |
+| 19 (por que ingressar) | Opção 3 (entender a saúde e agir de forma preditiva) | A opção 4 é claramente falsa |
+| 20 (como acompanhar) | "Todas as anteriores" | Cada opção é uma forma de acompanhamento |
+
+Também vale revisar a pergunta 21: a opção "Não quero viver mais" é uma das alternativas, e a correta é a do "desconto especial". Confirme se esse tom é o que você quer apresentar.
+
+---
+
+## Rodar localmente
+
+Requisitos: Node.js 20 ou superior.
+
+```bash
+cd kahoot
+npm install
+node server.js
+```
+
+O terminal mostra os endereços:
+
+- Apresentador: `http://localhost:3000/host.html`
+- Participantes (mesma rede): `http://<IP-do-seu-computador>:3000`
+- Painel de perguntas: `http://localhost:3000/admin.html`
+
+Para o painel funcionar localmente, defina a senha:
+
+```bash
+ADMIN_PASSWORD=sua-senha node server.js
+```
+
+Sem `ADMIN_PASSWORD`, o painel fica desativado (a API responde 503).
+
+---
+
+## Configuração (variáveis de ambiente)
+
+| Variável | Padrão | Para que serve |
+|---|---|---|
+| `PORT` | `3000` (o Cloud Run define `8080`) | Porta do servidor |
+| `ADMIN_PASSWORD` | vazio | Senha do painel `/admin.html`. Sem ela, o painel fica desativado |
+| `STORAGE` | local | `firestore` para salvar as perguntas no Firestore (produção) |
+| `PUBLIC_URL` | vazio | URL pública usada no QR code. Se vazia, o servidor usa o endereço pelo qual o apresentador acessou |
+
+Limites fixos no código: 100 participantes por jogo, até 60 perguntas, 2 a 4 respostas por pergunta.
+
+---
+
+## Deploy no Google Cloud Run
+
+### Arquitetura
+
+- **Cloud Run** roda o servidor (uma imagem Docker construída a partir do `Dockerfile`).
+- **Firestore** guarda as perguntas editadas (`quiz/questions`).
+- **Secret Manager** guarda a senha do painel (`quiz-admin-password`).
+- **Conta de serviço `quiz-runtime`** acessa o Firestore e o segredo, sem chave JSON.
+- **GitHub Actions** faz o deploy a cada push na `main`, usando **Workload Identity Federation** (sem chave JSON no GitHub). A conta `github-deployer` faz o deploy.
+
+### Configuração de cada serviço
+
+| Parâmetro | Valor | Motivo |
+|---|---|---|
+| Região | `us-central1` | Região dos EUA com preços de entrada |
+| Instâncias | mín. 0, máx. 1 | Uma instância só, porque o jogo fica na memória do processo |
+| Concorrência | 250 | Cada participante usa uma conexão aberta; 100 participantes + apresentador cabem |
+| Timeout | 3600 s | As conexões em tempo real ficam abertas durante o evento |
+| Memória / CPU | 512 MiB / 1 vCPU | Suficiente para 100 participantes |
+| Acesso | público | Os participantes entram sem conta Google |
+
+### Passo 1: vincular o faturamento (obrigatório)
+
+O projeto `rafanonato1` ainda **não tem conta de faturamento vinculada**, e sem ela o Cloud Run e o Firestore não funcionam. A conta aberta disponível é `rafa-nonato-nutri` (ID `01D507-D9BB95-EDFA4E`).
+
+```bash
+gcloud billing projects link rafanonato1 --billing-account=01D507-D9BB95-EDFA4E
+```
+
+Pode ser feito também em Console → Faturamento → Vincular projeto.
+
+### Passo 2: configuração inicial (uma vez)
+
+```bash
+gh auth status            # GitHub logado
+gcloud auth login         # GCP logado
+./scripts/gcp-setup.sh    # cria APIs, Firestore, contas, segredo, WIF e variáveis do GitHub
+```
+
+O script é idempotente: pode ser rodado de novo sem quebrar nada. Ao final ele define as variáveis do repositório (`GCP_PROJECT_ID`, `GCP_REGION`, `GCP_WIF_PROVIDER`, `GCP_DEPLOY_SA`), que não são segredos.
+
+Para ler a senha do painel depois:
+
+```bash
+gcloud secrets versions access latest --secret=quiz-admin-password
+```
+
+### Passo 3: primeiro deploy
+
+Com a configuração pronta, um push na `main` dispara o workflow `.github/workflows/deploy.yml`:
+
+```bash
+git push origin main
+gh run watch --repo rafanonato/quiz-viver-
+```
+
+Ao terminar, a URL do serviço aparece no log. Para consultar:
+
+```bash
+gcloud run services describe quiz-viver --region us-central1 --format='value(status.url)'
+```
+
+### Passo 4: checagem pós-deploy
+
+1. `GET <URL>/api/info` deve devolver a própria URL pública.
+2. Abra `<URL>/host.html`, crie um jogo e confira o QR code.
+3. Abra `<URL>/admin.html` e entre com a senha do Secret Manager.
+4. Rode uma simulação contra a URL pública (`BASE=<URL> node scripts/simulate.mjs` simula 50 participantes no endereço informado).
+
+### Custo
+
+O Cloud Run cobra pelo tempo de CPU e memória usados pelas requisições, e o plano de entrada costuma ficar em poucos dólares por mês para uso como este. O Firestore e o Secret Manager usam volumes mínimos. Confira a estimativa na calculadora de preços do Google Cloud antes do evento.
+
+**Opção mais segura para o dia do evento:** defina `--min-instances 1` durante a apresentação, para o servidor não ser desligado por inatividade. Depois volte para `0`:
+
+```bash
+gcloud run services update quiz-viver --region us-central1 --min-instances 1   # antes do evento
+gcloud run services update quiz-viver --region us-central1 --min-instances 0   # depois
+```
+
+Com `min-instances 0`, o servidor fica ativo enquanto o apresentador e os participantes estiverem conectados. Se todos saírem por mais de alguns minutos, ele pode ser desligado, e o jogo em andamento se perde. Por isso o `min-instances 1` é recomendado no dia.
+
+### Trocar a senha do painel
+
+```bash
+openssl rand -base64 24 | gcloud secrets versions add quiz-admin-password --data-file=-
+gcloud run services update quiz-viver --region us-central1 --update-secrets ADMIN_PASSWORD=quiz-admin-password:latest
+```
+
+---
+
+## Operação e solução de problemas
+
+| Sintoma | O que fazer |
+|---|---|
+| Painel `/admin.html` responde "Senha incorreta" | Confira a senha no Secret Manager (comando acima) |
+| Painel responde 503 "desativado" | `ADMIN_PASSWORD` não está definida no serviço |
+| QR code aponta para endereço errado | Defina `PUBLIC_URL` com a URL do serviço e faça um novo deploy |
+| "Já existe um jogo em andamento" | Encerre o jogo atual (botão **Encerrar jogo**) antes de criar outro |
+| Jogo sumiu após uma pausa longa | O servidor foi desligado por inatividade. Use `min-instances 1` no dia |
+| Participante não consegue entrar | Confira o PIN. Em rede local, confira se o celular está no mesmo Wi-Fi |
+| Deploy falhou no GitHub Actions | Veja o log com `gh run view --log-failed`. Erro de permissão costuma indicar que o faturamento ou alguma API não está ativa |
+| Logs do servidor | `gcloud run services logs read quiz-viver --region us-central1 --limit 100` |
+
+---
+
+## Limitações e cuidados
+
+- **Um jogo por vez.** O estado fica na memória de uma única instância. Por isso `max-instances` deve ser 1.
+- **Sem autenticação dos participantes.** Qualquer pessoa com o PIN entra no jogo. Isso é intencional para o evento.
+- **Painel protegido por senha simples.** Não há limite de tentativas de login. Use uma senha longa (a gerada pelo script já é).
+- **Criação de jogo.** Qualquer pessoa com acesso à URL pode criar um jogo novo, mas só quando não há jogo em andamento com participantes. Durante o evento, mantenha o painel do apresentador aberto.
+- **Participantes com conexão ruim** podem perder a resposta se o envio falhar. Eles precisam reabrir a página, e a sessão é recuperada, mas a resposta daquela pergunta não é reenviada.
+
+---
+
+## Estrutura do projeto
+
+```
+server.js            servidor (HTTP, tempo real, regras do jogo, API do painel)
+store.js             leitura e gravação das perguntas (arquivo local ou Firestore)
+questions.json       perguntas iniciais (semente)
+public/
+  index.html         tela do participante
+  host.html          tela do apresentador
+  admin.html         painel de edição de perguntas
+  common.js, player.js, host.js, admin.js   scripts das telas
+  style.css          estilos
+  themes/*.svg       fundos temáticos
+scripts/gcp-setup.sh configuração inicial do GCP (rodar uma vez)
+.github/workflows/deploy.yml   deploy automático no Cloud Run
+Dockerfile           imagem do Cloud Run
+```
