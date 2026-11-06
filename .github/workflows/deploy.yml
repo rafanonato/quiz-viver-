@@ -1,0 +1,47 @@
+name: Deploy Cloud Run
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # necessário para a autenticação sem chave (Workload Identity Federation)
+
+concurrency:
+  group: deploy-cloud-run
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Autenticar no GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+
+      - name: Configurar gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy no Cloud Run
+        run: |
+          gcloud run deploy quiz-viver \
+            --source . \
+            --project "${{ vars.GCP_PROJECT_ID }}" \
+            --region "${{ vars.GCP_REGION }}" \
+            --service-account "quiz-runtime@${{ vars.GCP_PROJECT_ID }}.iam.gserviceaccount.com" \
+            --allow-unauthenticated \
+            --set-env-vars STORAGE=firestore \
+            --set-secrets ADMIN_PASSWORD=quiz-admin-password:latest \
+            --min-instances 0 \
+            --max-instances 1 \
+            --concurrency 250 \
+            --timeout 3600 \
+            --memory 512Mi \
+            --cpu 1 \
+            --quiet
