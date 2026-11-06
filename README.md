@@ -239,6 +239,34 @@ gcloud run services update quiz-viver --region us-central1 --update-secrets ADMI
 
 ---
 
+## Versões e como voltar atrás
+
+**Versão validada em produção:** `v1.0.0` (tag no GitHub, commit `07ce130` para o código do jogo). Todos os commits depois dela alteram só a documentação, exceto quando dizem o contrário.
+
+Para ver a versão no GitHub: `https://github.com/rafanonato/quiz-viver-/releases/tag/v1.0.0` (ou `git tag`).
+
+**Revisão do Cloud Run com essa versão:** `quiz-viver-00001-gpf` (primeiro deploy) e `quiz-viver-00002-nlm` (atual, mesmo código).
+
+### Opção 1: voltar o tráfego para uma revisão anterior (segundos)
+
+```bash
+gcloud run revisions list --service quiz-viver --region us-central1   # lista as revisões
+gcloud run services update-traffic quiz-viver --region us-central1 --to-revisions quiz-viver-00001-gpf=100
+```
+
+Para voltar ao normal depois, use `--to-latest`.
+
+### Opção 2: voltar o código e deixar o GitHub Actions fazer o deploy (minutos)
+
+```bash
+git checkout v1.0.0                  # ver o código da versão validada
+git revert --no-edit HEAD~N..HEAD    # ou reverter os commits indesejados, depois dar push na main
+```
+
+Qualquer push na `main` dispara o deploy. Para republicar exatamente a `v1.0.0`, crie um commit que reverta para o estado da tag (`git checkout v1.0.0 -- .` seguido de commit e push).
+
+**Atenção:** o rollback de código não desfaz as perguntas salvas. Elas ficam no Firestore e continuam as mesmas, a menos que você restaure pelo painel.
+
 ## Operação e solução de problemas
 
 | Sintoma | O que fazer |
