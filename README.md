@@ -241,7 +241,7 @@ gcloud run services update quiz-viver --region us-central1 --update-secrets ADMI
 
 ## Versões e como voltar atrás
 
-**Versão validada em produção:** `v1.0.0` (tag no GitHub, commit `07ce130` para o código do jogo). Todos os commits depois dela alteram só a documentação, exceto quando dizem o contrário.
+**Versão validada em produção:** `v1.0.0`, tag no GitHub apontando para o commit `7b100e8`. Os commits depois dela alteram só a documentação.
 
 Para ver a versão no GitHub: `https://github.com/rafanonato/quiz-viver-/releases/tag/v1.0.0` (ou `git tag`).
 
@@ -260,7 +260,7 @@ Para voltar ao normal depois, use `--to-latest`.
 
 ```bash
 git checkout v1.0.0                  # ver o código da versão validada
-git revert --no-edit HEAD~N..HEAD    # ou reverter os commits indesejados, depois dar push na main
+git revert <commit>                  # desfaz um commit específico; depois git push origin main
 ```
 
 Qualquer push na `main` dispara o deploy. Para republicar exatamente a `v1.0.0`, crie um commit que reverta para o estado da tag (`git checkout v1.0.0 -- .` seguido de commit e push).
