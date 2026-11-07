@@ -16,18 +16,45 @@ async function api(path, body) {
   return data;
 }
 
+// Conexão em tempo real com reconexão. Só desiste (onClosed) quando o servidor responde 403,
+// ou seja, a sessão realmente não existe mais. Falhas temporárias (429, 5xx, rede) são repetidas.
+async function probeSession(role, token) {
+  try {
+    const res = await fetch(`/events?role=${role}&token=${encodeURIComponent(token)}`, { cache: 'no-store' });
+    if (res.body) res.body.cancel();
+    return res.status;
+  } catch {
+    return 0;
+  }
+}
+
 function openStream(role, token, onState, onClosed) {
-  const es = new EventSource(`/events?role=${role}&token=${encodeURIComponent(token)}`);
-  es.onmessage = (ev) => {
-    const s = JSON.parse(ev.data);
-    clock.offset = s.serverNow - Date.now();
-    onState(s);
+  let es = null;
+  let stopped = false;
+  const connect = () => {
+    if (stopped) return;
+    es = new EventSource(`/events?role=${role}&token=${encodeURIComponent(token)}`);
+    es.onmessage = (ev) => {
+      const s = JSON.parse(ev.data);
+      clock.offset = s.serverNow - Date.now();
+      onState(s);
+    };
+    es.onerror = async () => {
+      if (es.readyState !== EventSource.CLOSED) return; // o navegador reconecta sozinho
+      es.close();
+      const status = await probeSession(role, token);
+      if (stopped) return;
+      if (status === 403) return onClosed();
+      setTimeout(connect, 2000); // 429, 5xx ou rede: tenta de novo sem apagar a sessão
+    };
   };
-  es.onerror = () => {
-    // Erros de rede: o navegador tenta reconectar sozinho. CLOSED = servidor recusou (sessão inválida).
-    if (es.readyState === EventSource.CLOSED) onClosed();
+  connect();
+  return {
+    close() {
+      stopped = true;
+      if (es) es.close();
+    },
   };
-  return es;
 }
 
 function el(tag, className, text) {
