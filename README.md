@@ -17,7 +17,8 @@ Quiz em tempo real para até 100 participantes. Cada participante responde pelo 
 | Painel `/admin.html` para editar perguntas, respostas, correta, tempo e tema | Pronto e testado |
 | Repositório no GitHub | Publicado (`main`) |
 | Testes em produção | Simulação de 50 participantes e painel (leitura, edição e restauração) passaram |
-| Deploy no Cloud Run | **No ar**: https://quiz-viver-lw2pi32efa-uc.a.run.app |
+| Deploy no Cloud Run | **No ar**: https://quiz-viver-lw2pi32efa-uc.a.run.app (revisão `quiz-viver-00005-z4g`) |
+| Versão atual | Commit `9582400` na `main`. Ainda sem tag: a tag `v1.0.0` continua sendo a versão validada anterior |
 | Deploy automático pelo GitHub Actions | Ativo: cada push na `main` faz o deploy |
 
 ---
@@ -252,7 +253,9 @@ gcloud run services update quiz-viver --region us-central1 --update-secrets ADMI
 
 Para ver a versão no GitHub: `https://github.com/rafanonato/quiz-viver-/releases/tag/v1.0.0` (ou `git tag`).
 
-**Revisão do Cloud Run com essa versão:** `quiz-viver-00001-gpf` (primeiro deploy) e `quiz-viver-00002-nlm` (atual, mesmo código).
+**Revisões do Cloud Run:** `quiz-viver-00005-z4g` é a versão atual (pódio por cliques, suspense e retomada de participantes). Para voltar à versão anterior, use `quiz-viver-00002-nlm` (ou `-00001-gpf`), que correspondem à `v1.0.0`.
+
+**Revisão do Cloud Run com a v1.0.0:** `quiz-viver-00001-gpf` (primeiro deploy) e `quiz-viver-00002-nlm` (atual, mesmo código).
 
 ### Opção 1: voltar o tráfego para uma revisão anterior (segundos)
 
