@@ -65,9 +65,27 @@
     </div>
   </main>
 
-  <main class="screen" id="end" hidden>
-    <h1>Pódio final</h1>
-    <ol class="board" id="finalList"></ol>
+  <main class="screen podium-screen" id="podium" hidden>
+    <p class="count">Pódio final</p>
+    <div class="stage" id="podiumStage">
+      <div class="slot" data-place="2"><div class="medal">🥈</div><div class="pname"></div><div class="pscore"></div><div class="block">2</div></div>
+      <div class="slot" data-place="1"><div class="medal">🥇</div><div class="pname"></div><div class="pscore"></div><div class="block">1</div></div>
+      <div class="slot" data-place="3"><div class="medal">🥉</div><div class="pname"></div><div class="pscore"></div><div class="block">3</div></div>
+    </div>
+    <div class="confetti" id="confetti"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+      <button class="big" id="revealPodiumBtn">⬆ Revelar 3º lugar</button>
+      <button class="big" id="finishBtn" hidden>Finalizar jogo</button>
+    </div>
+  </main>
+
+  <main class="screen podium-screen" id="end" hidden>
+    <p class="count">Pódio final</p>
+    <div class="stage" id="finalStage">
+      <div class="slot" data-place="2"><div class="medal">🥈</div><div class="pname"></div><div class="pscore"></div><div class="block">2</div></div>
+      <div class="slot" data-place="1"><div class="medal">🥇</div><div class="pname"></div><div class="pscore"></div><div class="block">1</div></div>
+      <div class="slot" data-place="3"><div class="medal">🥉</div><div class="pname"></div><div class="pscore"></div><div class="block">3</div></div>
+    </div>
     <button class="big" id="newBtn">Novo jogo</button>
   </main>
 

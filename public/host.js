@@ -62,7 +62,9 @@ function render(s) {
   else if (s.status === 'question') renderQuestion(s);
   else if (s.status === 'reveal') renderReveal(s);
   else if (s.status === 'ranking') renderRanking(s);
+  else if (s.status === 'podium') renderPodium(s);
   else if (s.status === 'end') renderEnd(s);
+  if (s.status !== 'podium' && s.status !== 'end') resetPodium();
   if (!ticker) ticker = setInterval(tick, 200);
 }
 
@@ -120,9 +122,82 @@ function renderRanking(s) {
   document.querySelector('#ranking .next-btn').textContent = isLast ? 'Ver pódio final' : 'Próxima pergunta';
 }
 
+// ---------- Pódio (revelado por cliques, só no apresentador) ----------
+// Cada clique na seta (ou seta para cima do teclado) revela o próximo: 3º, 2º e depois 1º.
+const PODIUM_ORDER = [3, 2, 1];
+const PODIUM_LABELS = ['⬆ Revelar 3º lugar', '⬆ Revelar 2º lugar', '⬆ Revelar 1º lugar'];
+let podiumStep = 0; // quantos lugares já foram revelados (0 a 3)
+
+function resetPodium() {
+  podiumStep = 0;
+  document.querySelectorAll('#podiumStage .slot').forEach((sl) => sl.classList.remove('shown'));
+  $('confetti').replaceChildren();
+  updatePodiumControls();
+}
+
+function fillStage(stageId, top) {
+  const stage = $(stageId);
+  for (let place = 1; place <= 3; place++) {
+    const entry = top[place - 1];
+    const slot = stage.querySelector(`[data-place="${place}"]`);
+    slot.querySelector('.pname').textContent = entry ? entry.name : '—';
+    slot.querySelector('.pscore').textContent = entry ? `${entry.score.toLocaleString('pt-BR')} pts` : '';
+  }
+}
+
+function showPlace(place) {
+  const slot = document.querySelector(`#podiumStage [data-place="${place}"]`);
+  if (slot) slot.classList.add('shown');
+  if (place === 1) confetti();
+}
+
+function confetti() {
+  const box = $('confetti');
+  if (box.childElementCount) return;
+  const colors = ['#ffd166', '#e21b3c', '#1368ce', '#26890c', '#ffffff', '#f97316'];
+  for (let i = 0; i < 70; i++) {
+    const p = el('span', 'piece');
+    p.style.left = `${Math.random() * 100}%`;
+    p.style.background = colors[i % colors.length];
+    p.style.animationDelay = `${Math.random() * 1.5}s`;
+    p.style.animationDuration = `${2.5 + Math.random() * 2}s`;
+    box.append(p);
+  }
+}
+
+function updatePodiumControls() {
+  const done = podiumStep >= PODIUM_ORDER.length;
+  $('revealPodiumBtn').hidden = done;
+  $('revealPodiumBtn').textContent = PODIUM_LABELS[podiumStep] || '';
+  $('finishBtn').hidden = !done;
+}
+
+function revealNextPlace() {
+  if (podiumStep >= PODIUM_ORDER.length) return;
+  showPlace(PODIUM_ORDER[podiumStep]);
+  podiumStep++;
+  updatePodiumControls();
+}
+
+function renderPodium(s) {
+  showScreen('podium');
+  fillStage('podiumStage', s.leaderboard.slice(0, 3));
+  updatePodiumControls();
+}
+
+$('revealPodiumBtn').addEventListener('click', revealNextPlace);
+$('finishBtn').addEventListener('click', () => act('end'));
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'ArrowUp' && e.key !== 'PageDown') return;
+  if ($('podium').hidden || podiumStep >= PODIUM_ORDER.length) return;
+  e.preventDefault();
+  revealNextPlace();
+});
+
 function renderEnd(s) {
   showScreen('end');
-  renderList($('finalList'), s.leaderboard.slice(0, 10), null);
+  fillStage('finalStage', s.leaderboard.slice(0, 3));
+  document.querySelectorAll('#finalStage .slot').forEach((sl) => sl.classList.add('shown'));
 }
 
 function tick() {

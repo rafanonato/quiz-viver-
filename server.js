@@ -48,7 +48,7 @@ function newGame() {
   return {
     pin: String(100000 + crypto.randomInt(900000)),
     hostToken: crypto.randomBytes(16).toString('hex'),
-    status: 'lobby', // lobby | question | reveal | ranking | end
+    status: 'lobby', // lobby | question | reveal | ranking | podium | end
     qIndex: -1,
     startedAt: 0,
     endsAt: 0,
@@ -150,6 +150,13 @@ function revealAnswer() {
   publish();
 }
 
+// Pódio: só o apresentador vê (animado no navegador). Participantes ficam na tela de espera.
+function showPodium() {
+  clearTimer();
+  game.status = 'podium';
+  publish();
+}
+
 function endGame() {
   clearTimer();
   game.status = 'end';
@@ -173,7 +180,7 @@ function hostAction(action) {
     case 'next':
       if (game.status === 'reveal' || game.status === 'ranking') {
         if (game.qIndex + 1 < game.questions.length) startQuestion(game.qIndex + 1);
-        else endGame();
+        else showPodium();
       }
       break;
     case 'end':
@@ -202,11 +209,17 @@ function join({ pin, name, token }) {
   if (token && game.players.has(token)) {
     return { token, name: game.players.get(token).name }; // reconexão
   }
-  if (game.status !== 'lobby') fail(409, 'Esse jogo já começou');
-  if (game.players.size >= MAX_PLAYERS) fail(409, 'Sala cheia');
-
   const clean = String(name || '').replace(/\s+/g, ' ').trim().slice(0, 20);
   if (!clean) fail(400, 'Digite um apelido');
+
+  // Depois do início, só retorna quem já estava no jogo (mesmo apelido, sem novo cadastro).
+  // Isso permite voltar com outro celular ou depois de limpar o navegador, recuperando a posição.
+  if (game.status !== 'lobby') {
+    const found = [...game.players.entries()].find(([, p]) => p.name.toLowerCase() === clean.toLowerCase());
+    if (!found) fail(409, 'Esse jogo já começou. Só quem já estava nele pode voltar, usando o mesmo apelido.');
+    return { token: found[0], name: found[1].name };
+  }
+  if (game.players.size >= MAX_PLAYERS) fail(409, 'Sala cheia');
 
   const taken = new Set([...game.players.values()].map((p) => p.name.toLowerCase()));
   let unique = clean;
@@ -241,7 +254,7 @@ function hostState() {
     endsAt: game.endsAt,
     playerCount: game.players.size,
     names: [...game.players.values()].map((p) => p.name),
-    leaderboard: ['ranking', 'end'].includes(game.status) ? leaderboard() : [],
+    leaderboard: ['ranking', 'podium', 'end'].includes(game.status) ? leaderboard() : [],
   };
   if (game.qIndex >= 0) {
     const q = game.questions[game.qIndex];
@@ -276,15 +289,15 @@ function playerState(p) {
     serverNow: Date.now(),
     endsAt: game.endsAt,
     playerCount: game.players.size,
+    // Posição e pontuação total só vão ao participante no fim (suspense).
     you: {
       name: p.name,
-      score: p.score,
-      rank: ranking().indexOf(p) + 1,
       choice: p.answer ? p.answer.choice : null,
       lastCorrect: p.lastCorrect,
       lastGain: p.lastGain,
+      ...(game.status === 'end' ? { score: p.score, rank: ranking().indexOf(p) + 1 } : {}),
     },
-    leaderboard: ['ranking', 'end'].includes(game.status) ? leaderboard().slice(0, 10) : [],
+    leaderboard: game.status === 'end' ? leaderboard().slice(0, 10) : [],
   };
   if (game.qIndex >= 0) {
     const q = game.questions[game.qIndex];

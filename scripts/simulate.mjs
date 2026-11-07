@@ -142,7 +142,7 @@ log('Ranking ordenado:', sorted, '| pontuação total:', totalScore);
 
 // Participante vê a própria posição coerente
 const sample = players[7].last;
-log('Participante 8 ->', sample.status, `posição ${sample.you.rank}, ${sample.you.score} pts`);
+log('Participante 8 (meio do jogo) ->', sample.status, '| campos de posição visíveis?', 'rank' in sample.you, 'score' in sample.you);
 
 // Encerrar
 await post('/api/host', { token: hostToken, action: 'end' });

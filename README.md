@@ -35,7 +35,14 @@ A URL pública do serviço é **https://quiz-viver-lw2pi32efa-uc.a.run.app** e f
    - a revelação acontece sozinha quando todos respondem ou quando o tempo acaba, ou o apresentador pode clicar em **Revelar resposta agora**;
    - depois, **Ver ranking** (opcional) e **Próxima pergunta**;
    - na última pergunta o botão vira **Ver pódio final**.
-6. **Fim:** o pódio aparece para todos. Para um novo jogo, clique em **Novo jogo** e depois em **Criar novo jogo**.
+6. **Pódio final:** depois da última pergunta, clique em **Ver pódio final**. O pódio aparece **só na tela do apresentador**. Os participantes veem a mensagem "Olhe para a tela do apresentador…", sem ranking, para manter o suspense.
+
+### Suspense durante o jogo
+
+Durante o jogo, o participante **não vê a posição nem a pontuação total**. Ele vê só se acertou, quantos pontos ganhou na pergunta e a resposta certa. Esses dados não são enviados ao celular antes do fim do jogo, e não apenas escondidos na tela. A posição e o total aparecem só depois de **Finalizar jogo**.
+   - Clique em **⬆ Revelar 3º lugar**. Cada clique (ou a tecla seta para cima) revela o próximo: 3º, depois 2º e por último 1º, com confete. Não há tempo automático: você controla o ritmo.
+   - Depois que o 1º lugar aparecer, clique em **Finalizar jogo**. Só então os participantes veem a posição final e o top 10.
+   - Enquanto o jogo estiver no pódio com jogadores, não é possível criar outro jogo. Finalize antes.
 
 Se o apresentador fechar a aba, basta reabrir `host.html`: o jogo continua de onde estava. Se um participante perder a conexão, ele reabre a página e volta ao jogo.
 
@@ -266,6 +273,13 @@ git revert <commit>                  # desfaz um commit específico; depois git 
 Qualquer push na `main` dispara o deploy. Para republicar exatamente a `v1.0.0`, crie um commit que reverta para o estado da tag (`git checkout v1.0.0 -- .` seguido de commit e push).
 
 **Atenção:** o rollback de código não desfaz as perguntas salvas. Elas ficam no Firestore e continuam as mesmas, a menos que você restaure pelo painel.
+
+## Participante que saiu do jogo
+
+- **Mesmo celular e navegador:** basta abrir de novo a página (ou o QR code). A sessão salva reconecta sozinha, com a pergunta atual e a pontuação.
+- **Outro celular, aba anônima ou navegador limpo:** durante o jogo, digite o **mesmo PIN e o mesmo apelido** que usou antes (sem diferenciar maiúsculas e espaços). A posição e a pontuação são recuperadas.
+- **Quem não estava no jogo:** não consegue entrar depois do início ("Esse jogo já começou").
+- **Limitação:** o apelido é a única identificação. Quem souber o PIN e o apelido de outra pessoa pode assumir a vaga dela. Para o evento, isso é considerado baixo risco.
 
 ## Operação e solução de problemas
 

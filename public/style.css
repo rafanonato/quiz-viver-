@@ -237,3 +237,72 @@ button.small.danger { background: #e21b3c; color: #fff; }
 .qcard input[type=radio] { width: 20px; height: 20px; padding: 0; margin: 0 4px; flex-shrink: 0; accent-color: #26890c; }
 .qcard .optText { text-align: left; }
 .admin a { color: #ffd166; }
+
+/* ---------- Pódio (apresentador) ---------- */
+.stage {
+  width: min(95vw, 900px);
+  height: min(52vh, 440px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 14px;
+}
+.slot {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(70px);
+  transition: transform .8s cubic-bezier(.2, 1.35, .4, 1), opacity .4s ease;
+}
+.slot.shown { opacity: 1; transform: none; }
+.slot .medal { font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1; }
+.slot .pname {
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+  font-weight: 800;
+  margin-top: 8px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.slot .pscore { font-size: clamp(1rem, 2vw, 1.3rem); font-weight: 700; opacity: .9; margin-bottom: 8px; }
+.slot .block {
+  width: 100%;
+  border-radius: 14px 14px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(3rem, 9vw, 6rem);
+  font-weight: 900;
+  color: #46178f;
+}
+.slot[data-place="1"] .block { height: 62%; background: linear-gradient(#ffe08a, #f5b400); }
+.slot[data-place="2"] .block { height: 46%; background: linear-gradient(#f1f5f9, #94a3b8); }
+.slot[data-place="3"] .block { height: 34%; background: linear-gradient(#fbc9a0, #c2410c); }
+
+.podium-screen .count { font-size: 1.2rem; }
+
+/* Confete */
+.confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 10; }
+.confetti .piece {
+  position: absolute;
+  top: -24px;
+  width: 10px;
+  height: 16px;
+  border-radius: 2px;
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes confetti-fall {
+  to { transform: translateY(110vh) rotate(720deg); }
+}
+
+/* Espera (participante) */
+.podium-wait { font-size: 5rem; animation: bounce 1.2s ease-in-out infinite; }
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}

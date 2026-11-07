@@ -55,7 +55,11 @@ function render(s) {
   } else if (s.status === 'reveal') {
     renderReveal(s);
   } else if (s.status === 'ranking') {
-    renderRanking(s);
+    // Ranking fica só na tela do apresentador: participante aguarda a próxima pergunta.
+    showScreen('wait');
+  } else if (s.status === 'podium') {
+    showScreen('podium');
+    $('podiumYou').textContent = `Você: ${s.you.name}`;
   } else if (s.status === 'end') {
     renderEnd(s);
   }
@@ -110,13 +114,6 @@ function renderReveal(s) {
     box.textContent = y.choice === null ? 'Você não respondeu' : 'Errado';
   }
   $('correctAnswer').textContent = `Resposta certa: ${s.question.options[s.question.correct]}`;
-  $('resultRank').textContent = `${y.rank}º lugar · ${y.score} pts`;
-}
-
-function renderRanking(s) {
-  showScreen('ranking');
-  $('rankYou').textContent = `Você está em ${s.you.rank}º · ${s.you.score} pts`;
-  renderList($('rankList'), s.leaderboard, s.you.name);
 }
 
 function renderEnd(s) {

@@ -38,14 +38,19 @@
   <main class="screen" id="reveal" hidden>
     <div class="result" id="resultBox"></div>
     <p id="correctAnswer" class="muted"></p>
-    <p id="resultRank" style="font-size:1.3rem;font-weight:700;"></p>
     <p class="muted">Aguarde a próxima pergunta…</p>
   </main>
 
-  <main class="screen" id="ranking" hidden>
-    <h2>Ranking</h2>
-    <p id="rankYou" style="font-size:1.2rem;"></p>
-    <ol class="board" id="rankList"></ol>
+  <main class="screen" id="wait" hidden>
+    <h2>Boa!</h2>
+    <p style="font-size:1.2rem;">Aguarde a próxima pergunta…</p>
+  </main>
+
+  <main class="screen" id="podium" hidden>
+    <div class="podium-wait">🏆</div>
+    <h2>Pódio final!</h2>
+    <p style="font-size:1.2rem;">Olhe para a tela do apresentador…</p>
+    <p class="muted" id="podiumYou"></p>
   </main>
 
   <main class="screen" id="end" hidden>
