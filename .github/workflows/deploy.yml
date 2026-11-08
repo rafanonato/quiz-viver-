@@ -39,6 +39,7 @@ jobs:
             --set-env-vars STORAGE=firestore \
             --set-secrets ADMIN_PASSWORD=quiz-admin-password:latest \
             --min-instances 0 \
+            --cpu-throttling \
             --max-instances 1 \
             --concurrency 1000 \
             --timeout 3600 \
