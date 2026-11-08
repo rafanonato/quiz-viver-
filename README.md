@@ -17,8 +17,8 @@ Quiz em tempo real para até 100 participantes. Cada participante responde pelo 
 | Painel `/admin.html` para editar perguntas, respostas, correta, tempo e tema | Pronto e testado |
 | Repositório no GitHub | Publicado (`main`) |
 | Testes em produção | Simulação de 50 participantes e painel (leitura, edição e restauração) passaram |
-| Deploy no Cloud Run | **No ar**: https://quiz-viver-lw2pi32efa-uc.a.run.app (revisão `quiz-viver-00005-z4g`) |
-| Versão atual | Commit com resiliência do jogo (ver seção **Resiliência**). Tag `v1.1.0` criada no mesmo commit. A `v1.0.0` continua disponível para rollback |
+| Deploy no Cloud Run | **No ar**: https://quiz-viver-lw2pi32efa-uc.a.run.app (revisão `quiz-viver-00010-nzk`) |
+| Versão atual | Tag `v1.1.0` (commit `16a01bd`): resiliência do jogo, pódio por cliques, suspense e retomada. Depois dela, o commit `b6d0590` só ajustou o deploy. A `v1.0.0` continua disponível para rollback |
 | Evento de 08/11 | Concluído com sucesso (palestra com todos os participantes) |
 | Resiliência do jogo | Estado salvo no Firestore a cada mudança; se a instância cair, o jogo é retomado |
 | Deploy automático pelo GitHub Actions | Ativo: cada push na `main` faz o deploy |
@@ -175,14 +175,14 @@ Limites fixos no código: 100 participantes por jogo, até 60 perguntas, 2 a 4 r
 |---|---|---|
 | Região | `us-central1` | Região dos EUA com preços de entrada |
 | Instâncias | mín. 0, máx. 1 | Uma instância escreve o jogo por vez (controle de dono no Firestore) |
-| Concorrência | 250 | Cada participante usa uma conexão aberta; 100 participantes + apresentador cabem |
+| Concorrência | 1000 | Cada participante e o apresentador mantêm uma conexão aberta. O valor dá folga para reconexões |
 | Timeout | 3600 s | As conexões em tempo real ficam abertas durante o evento |
 | Memória / CPU | 512 MiB / 1 vCPU | Suficiente para 100 participantes |
 | Acesso | público | Os participantes entram sem conta Google |
 
 ### Passo 1: vincular o faturamento (obrigatório)
 
-O projeto `rafanonato1` ainda **não tem conta de faturamento vinculada**, e sem ela o Cloud Run e o Firestore não funcionam. A conta aberta disponível é `rafa-nonato-nutri` (ID `01D507-D9BB95-EDFA4E`).
+**Já feito.** O projeto `rafanonato1` está vinculado à conta `rafa-nonato-nutri` (ID `01D507-D9BB95-EDFA4E`). Sem faturamento vinculado, o Cloud Run e o Firestore não funcionam, então mantenha o vínculo.
 
 ```bash
 gcloud billing projects link rafanonato1 --billing-account=01D507-D9BB95-EDFA4E
@@ -232,14 +232,14 @@ gcloud run services describe quiz-viver --region us-central1 --format='value(sta
 
 O Cloud Run cobra pelo tempo de CPU e memória usados pelas requisições, e o plano de entrada costuma ficar em poucos dólares por mês para uso como este. O Firestore e o Secret Manager usam volumes mínimos. Confira a estimativa na calculadora de preços do Google Cloud antes do evento.
 
-**Opção mais segura para o dia do evento:** defina `--min-instances 1` durante a apresentação, para o servidor não ser desligado por inatividade. Depois volte para `0`:
+**Configuração do dia do evento:** o deploy atual usa instância sob demanda (`min-instances 0`) e CPU com throttling. Para um evento, deixe a instância sempre ligada com CPU dedicada, e volte ao normal depois:
 
 ```bash
-gcloud run services update quiz-viver --region us-central1 --min-instances 1   # antes do evento
-gcloud run services update quiz-viver --region us-central1 --min-instances 0   # depois
+gcloud run services update quiz-viver --region us-central1 --min-instances 1 --no-cpu-throttling   # antes do evento
+gcloud run services update quiz-viver --region us-central1 --min-instances 0 --cpu-throttling       # depois
 ```
 
-Com `min-instances 0`, o servidor fica ativo enquanto o apresentador e os participantes estiverem conectados. Se todos saírem por mais de alguns minutos, ele pode ser desligado, e o jogo em andamento se perde. Por isso o `min-instances 1` é recomendado no dia.
+Com `min-instances 0`, o servidor pode ser desligado depois de alguns minutos sem conexões. Desde a versão 1.1.0 o jogo é retomado do Firestore quando isso acontece, mas o `min-instances 1` evita a pausa. Lembre-se de que qualquer alteração de configuração ou push na `main` cria nova revisão e reinicia a instância.
 
 ### Trocar a senha do painel
 
@@ -252,13 +252,13 @@ gcloud run services update quiz-viver --region us-central1 --update-secrets ADMI
 
 ## Versões e como voltar atrás
 
-**Versão validada em produção:** `v1.0.0`, tag no GitHub apontando para o commit `7b100e8`. Os commits depois dela alteram só a documentação.
+**Versão atual:** `v1.1.0` (tag no GitHub, commit `16a01bd`), usada no evento de 08/11. **Versão anterior:** `v1.0.0` (commit `7b100e8`), sem resiliência nem pódio por cliques.
 
 Para ver a versão no GitHub: `https://github.com/rafanonato/quiz-viver-/releases/tag/v1.0.0` (ou `git tag`).
 
-**Revisões do Cloud Run:** `quiz-viver-00005-z4g` é a versão atual (pódio por cliques, suspense e retomada de participantes). Para voltar à versão anterior, use `quiz-viver-00002-nlm` (ou `-00001-gpf`), que correspondem à `v1.0.0`.
+**Revisões do Cloud Run:** `quiz-viver-00010-nzk` é a revisão atual (v1.1.0, com a configuração de deploy corrigida). Para voltar à v1.0.0, use `quiz-viver-00002-nlm` (ou `-00001-gpf`).
 
-**Revisão do Cloud Run com a v1.0.0:** `quiz-viver-00001-gpf` (primeiro deploy) e `quiz-viver-00002-nlm` (atual, mesmo código).
+**Revisões da v1.0.0:** `quiz-viver-00001-gpf` (primeiro deploy) e `quiz-viver-00002-nlm`.
 
 ### Opção 1: voltar o tráfego para uma revisão anterior (segundos)
 
@@ -322,7 +322,7 @@ Em produção (`STORAGE=firestore`), o estado do jogo é salvo no Firestore, no 
 - **Sem autenticação dos participantes.** Qualquer pessoa com o PIN entra no jogo. Isso é intencional para o evento.
 - **Painel protegido por senha simples.** Não há limite de tentativas de login. Use uma senha longa (a gerada pelo script já é).
 - **Criação de jogo.** Qualquer pessoa com acesso à URL pode criar um jogo novo, mas só quando não há jogo em andamento com participantes. Durante o evento, mantenha o painel do apresentador aberto.
-- **Participantes com conexão ruim** podem perder a resposta se o envio falhar. Eles precisam reabrir a página, e a sessão é recuperada, mas a resposta daquela pergunta não é reenviada.
+- **Falha ao enviar resposta:** se o servidor não conseguir salvar o jogo, a resposta retorna erro e o participante vê uma mensagem. Ele pode tentar de novo. Se a conexão cair, basta reabrir a página: a sessão e a pontuação são recuperadas.
 
 ---
 
@@ -330,7 +330,7 @@ Em produção (`STORAGE=firestore`), o estado do jogo é salvo no Firestore, no 
 
 ```
 server.js            servidor (HTTP, tempo real, regras do jogo, API do painel)
-store.js             leitura e gravação das perguntas (arquivo local ou Firestore)
+store.js             leitura e gravação das perguntas e do estado do jogo (arquivo local ou Firestore)
 questions.json       perguntas iniciais (semente)
 public/
   index.html         tela do participante
@@ -340,6 +340,8 @@ public/
   style.css          estilos
   themes/*.svg       fundos temáticos
 scripts/gcp-setup.sh configuração inicial do GCP (rodar uma vez)
+scripts/simulate.mjs  simula 50 participantes contra qualquer URL
+scripts/resilience-test.mjs  teste de troca de instância contra o Firestore
 .github/workflows/deploy.yml   deploy automático no Cloud Run
 Dockerfile           imagem do Cloud Run
 ```
