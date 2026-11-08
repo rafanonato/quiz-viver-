@@ -34,6 +34,12 @@ let QUESTIONS = []; // perguntas atuais (editáveis pelo admin)
 const clients = new Set(); // conexões SSE abertas: { role, res, player? }
 let game = null;
 
+// ---------- persistência do jogo (Firestore) ----------
+const OWNER = crypto.randomUUID(); // identifica esta instância; só ela escreve o jogo
+let fenced = false; // true quando outra instância assumiu o jogo: esta para de atender
+let writeChain = Promise.resolve(); // escritas em ordem
+let writeFailed = false;
+
 class HttpError extends Error {
   constructor(status, message) {
     super(message);
@@ -238,6 +244,7 @@ function createGame() {
   for (const c of clients) c.res.end();
   clients.clear();
   game = newGame();
+  persist();
   return { pin: game.pin, hostToken: game.hostToken };
 }
 
@@ -318,10 +325,91 @@ function send(client, data) {
 
 function publish() {
   for (const c of clients) send(c, c.role === 'host' ? hostState() : playerState(c.player));
+  persist();
 }
 
 function publishHost() {
   for (const c of clients) if (c.role === 'host') send(c, hostState());
+  persist();
+}
+
+function snapshot() {
+  return {
+    pin: game.pin,
+    hostToken: game.hostToken,
+    status: game.status,
+    qIndex: game.qIndex,
+    startedAt: game.startedAt,
+    endsAt: game.endsAt,
+    questions: game.questions,
+    players: [...game.players.entries()].map(([token, p]) => ({
+      token,
+      name: p.name,
+      score: p.score,
+      answer: p.answer,
+      lastCorrect: p.lastCorrect,
+      lastGain: p.lastGain,
+    })),
+  };
+}
+
+// Salva o estado completo, em ordem. Não bloqueia quem chama; use flush() para esperar.
+function persist() {
+  if (!store.USE_FIRESTORE || fenced) return;
+  const snap = snapshot();
+  writeChain = writeChain.then(async () => {
+    try {
+      await store.saveGame(snap, OWNER);
+      writeFailed = false;
+    } catch (err) {
+      if (err instanceof store.FencedError) fence();
+      else {
+        writeFailed = true;
+        console.error('Falha ao salvar o jogo:', err.message);
+      }
+    }
+  });
+}
+
+// Espera as escritas pendentes. Só então a resposta sai: se a instância cair, o que foi confirmado está salvo.
+async function flush() {
+  await writeChain;
+  if (fenced || writeFailed) throw new HttpError(503, 'Não foi possível salvar o jogo. Tente de novo.');
+}
+
+// Outra instância assumiu o jogo: encerra as conexões para os clientes reconectarem na nova.
+function fence() {
+  fenced = true;
+  for (const c of clients) c.res.end();
+  clients.clear();
+  console.error('Instância substituída: parando de atender.');
+}
+
+function restoreGame(s) {
+  return {
+    pin: s.pin,
+    hostToken: s.hostToken,
+    status: s.status,
+    qIndex: s.qIndex,
+    startedAt: s.startedAt,
+    endsAt: s.endsAt,
+    timer: null,
+    questions: s.questions,
+    players: new Map(
+      s.players.map((p) => [
+        p.token,
+        { name: p.name, score: p.score, answer: p.answer, lastCorrect: p.lastCorrect, lastGain: p.lastGain },
+      ])
+    ),
+  };
+}
+
+// Retoma o timer de uma pergunta em andamento (ou revela já, se o tempo acabou durante a queda).
+function resumeTimers() {
+  if (game.status !== 'question') return;
+  const left = game.endsAt - Date.now();
+  if (left <= 0) revealAnswer();
+  else game.timer = setTimeout(revealAnswer, left);
 }
 
 // ---------- HTTP ----------
@@ -365,6 +453,7 @@ const routes = {
 };
 
 function openStream(url, req, res) {
+  if (fenced) return sendJson(res, 503, { error: 'Servidor atualizando, tente de novo' });
   const role = url.searchParams.get('role');
   const token = url.searchParams.get('token') || '';
   let client;
@@ -458,8 +547,10 @@ const server = http.createServer(async (req, res) => {
       return res.end(svg);
     }
     if (req.method === 'POST' && routes[url.pathname]) {
+      if (fenced) return sendJson(res, 503, { error: 'Servidor atualizando, tente de novo' });
       const body = await readBody(req);
       const result = routes[url.pathname](body);
+      await flush();
       return sendJson(res, 200, result || { ok: true });
     }
     if (req.method === 'GET') return serveStatic(url.pathname, res);
@@ -469,6 +560,18 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+// Confere periodicamente se esta instância ainda é a dona do jogo. Conexões abertas na
+// revisão antiga continuam vivas após uma troca de revisão, então não basta checar na hora de gravar.
+setInterval(async () => {
+  if (!store.USE_FIRESTORE || fenced) return;
+  try {
+    const owner = await store.currentOwner();
+    if (owner && owner !== OWNER) fence();
+  } catch (err) {
+    console.error('Falha ao verificar o dono do jogo:', err.message);
+  }
+}, 5000);
+
 // Mantém as conexões SSE vivas (celulares e Wi-Fi costumam derrubar conexões ociosas).
 setInterval(() => {
   for (const c of clients) c.res.write(': ping\n\n');
@@ -476,7 +579,10 @@ setInterval(() => {
 
 (async () => {
   QUESTIONS = validateQuestions(await store.loadQuestions(), listThemes());
-  game = newGame();
+  const saved = await store.claimGame(OWNER);
+  game = saved && saved.status !== 'end' ? restoreGame(saved) : newGame();
+  if (saved && saved.status !== 'end') console.log(`  Jogo ${game.pin} retomado (${game.players.size} participantes, status ${game.status}).`);
+  resumeTimers();
   server.listen(PORT, '0.0.0.0', () => {
     console.log('\nQuiz no ar!');
     console.log(`  Armazenamento: ${store.USE_FIRESTORE ? 'Firestore' : 'questions.json'}`);

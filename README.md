@@ -18,7 +18,9 @@ Quiz em tempo real para até 100 participantes. Cada participante responde pelo 
 | Repositório no GitHub | Publicado (`main`) |
 | Testes em produção | Simulação de 50 participantes e painel (leitura, edição e restauração) passaram |
 | Deploy no Cloud Run | **No ar**: https://quiz-viver-lw2pi32efa-uc.a.run.app (revisão `quiz-viver-00005-z4g`) |
-| Versão atual | Commit `9582400` na `main`. Ainda sem tag: a tag `v1.0.0` continua sendo a versão validada anterior |
+| Versão atual | Commit com resiliência do jogo (ver seção **Resiliência**). Tag `v1.1.0` criada no mesmo commit. A `v1.0.0` continua disponível para rollback |
+| Evento de 08/11 | Concluído com sucesso (palestra com todos os participantes) |
+| Resiliência do jogo | Estado salvo no Firestore a cada mudança; se a instância cair, o jogo é retomado |
 | Deploy automático pelo GitHub Actions | Ativo: cada push na `main` faz o deploy |
 
 ---
@@ -149,7 +151,8 @@ Sem `ADMIN_PASSWORD`, o painel fica desativado (a API responde 503).
 |---|---|---|
 | `PORT` | `3000` (o Cloud Run define `8080`) | Porta do servidor |
 | `ADMIN_PASSWORD` | vazio | Senha do painel `/admin.html`. Sem ela, o painel fica desativado |
-| `STORAGE` | local | `firestore` para salvar as perguntas no Firestore (produção) |
+| `STORAGE` | local | `firestore` para salvar perguntas e o estado do jogo no Firestore (produção) |
+| `GAME_DOC` | `activeGame` | Nome do documento que guarda o jogo em andamento (usado em testes) |
 | `PUBLIC_URL` | vazio | URL pública usada no QR code. Se vazia, o servidor usa o endereço pelo qual o apresentador acessou |
 
 Limites fixos no código: 100 participantes por jogo, até 60 perguntas, 2 a 4 respostas por pergunta.
@@ -171,7 +174,7 @@ Limites fixos no código: 100 participantes por jogo, até 60 perguntas, 2 a 4 r
 | Parâmetro | Valor | Motivo |
 |---|---|---|
 | Região | `us-central1` | Região dos EUA com preços de entrada |
-| Instâncias | mín. 0, máx. 1 | Uma instância só, porque o jogo fica na memória do processo |
+| Instâncias | mín. 0, máx. 1 | Uma instância escreve o jogo por vez (controle de dono no Firestore) |
 | Concorrência | 250 | Cada participante usa uma conexão aberta; 100 participantes + apresentador cabem |
 | Timeout | 3600 s | As conexões em tempo real ficam abertas durante o evento |
 | Memória / CPU | 512 MiB / 1 vCPU | Suficiente para 100 participantes |
@@ -284,6 +287,20 @@ Qualquer push na `main` dispara o deploy. Para republicar exatamente a `v1.0.0`,
 - **Quem não estava no jogo:** não consegue entrar depois do início ("Esse jogo já começou").
 - **Limitação:** o apelido é a única identificação. Quem souber o PIN e o apelido de outra pessoa pode assumir a vaga dela. Para o evento, isso é considerado baixo risco.
 
+## Resiliência do jogo
+
+Em produção (`STORAGE=firestore`), o estado do jogo é salvo no Firestore, no documento `quiz/activeGame`:
+
+- **O que é salvo:** PIN, token do apresentador, status e pergunta atual, horário de início e fim do timer, a cópia das perguntas e, para cada participante, token, apelido, pontuação e resposta.
+- **Quando:** a cada mudança (entrada, início, resposta, revelação, próxima pergunta, pódio e fim). O POST só responde depois que a gravação terminou, então uma resposta confirmada não se perde.
+- **Recuperação:** ao iniciar, a instância assume o jogo salvo e o retoma. Se o timer de uma pergunta estava rodando, ele continua de onde parou; se o tempo acabou durante a queda, a resposta é revelada. Participantes e apresentador reconectam com os tokens que já têm.
+- **Troca de instância:** cada instância tem um identificador de dono. Quando outra assume o jogo, a antiga percebe em até 5 segundos, para de atender e encerra as conexões, para que os clientes reconectem na nova.
+- **Cliente:** só desiste de uma sessão quando o servidor responde 403. Falhas temporárias (429, 5xx, rede) são repetidas.
+
+**Como testar:** `STORAGE=firestore GAME_DOC=test-x GOOGLE_CLOUD_PROJECT=<projeto> node scripts/resilience-test.mjs` (exige `gcloud auth application-default login`). O script sobe três instâncias e verifica troca de instância, cerco da instância antiga, reconexão, timer retomado e pontuação preservada.
+
+**Limite:** a gravação é completa a cada mudança, então um jogo muito grande (100 participantes) custa algumas dezenas de KB por escrita. Para o tamanho atual, isso é tranquilo.
+
 ## Operação e solução de problemas
 
 | Sintoma | O que fazer |
@@ -292,7 +309,7 @@ Qualquer push na `main` dispara o deploy. Para republicar exatamente a `v1.0.0`,
 | Painel responde 503 "desativado" | `ADMIN_PASSWORD` não está definida no serviço |
 | QR code aponta para endereço errado | Defina `PUBLIC_URL` com a URL do serviço e faça um novo deploy |
 | "Já existe um jogo em andamento" | Encerre o jogo atual (botão **Encerrar jogo**) antes de criar outro |
-| Jogo sumiu após uma pausa longa | O servidor foi desligado por inatividade. Use `min-instances 1` no dia |
+| Jogo parou após uma queda do servidor | A instância nova retoma o jogo salvo. Conferir no log: `Jogo <PIN> retomado` |
 | Participante não consegue entrar | Confira o PIN. Em rede local, confira se o celular está no mesmo Wi-Fi |
 | Deploy falhou no GitHub Actions | Veja o log com `gh run view --log-failed`. Erro de permissão costuma indicar que o faturamento ou alguma API não está ativa |
 | Logs do servidor | `gcloud run services logs read quiz-viver --region us-central1 --limit 100` |
@@ -301,7 +318,7 @@ Qualquer push na `main` dispara o deploy. Para republicar exatamente a `v1.0.0`,
 
 ## Limitações e cuidados
 
-- **Um jogo por vez.** O estado fica na memória de uma única instância. Por isso `max-instances` deve ser 1.
+- **Um jogo por vez.** O jogo ativo fica salvo no documento `quiz/activeGame` do Firestore, e a instância em execução o mantém em memória. Por isso `max-instances` deve ser 1.
 - **Sem autenticação dos participantes.** Qualquer pessoa com o PIN entra no jogo. Isso é intencional para o evento.
 - **Painel protegido por senha simples.** Não há limite de tentativas de login. Use uma senha longa (a gerada pelo script já é).
 - **Criação de jogo.** Qualquer pessoa com acesso à URL pode criar um jogo novo, mas só quando não há jogo em andamento com participantes. Durante o evento, mantenha o painel do apresentador aberto.
