@@ -17,7 +17,7 @@ Quiz em tempo real para até 100 participantes. Cada participante responde pelo 
 | Painel `/admin.html` para editar perguntas, respostas, correta, tempo e tema | Pronto e testado |
 | Repositório no GitHub | Publicado (`main`) |
 | Testes em produção | Simulação de 50 participantes e painel (leitura, edição e restauração) passaram |
-| Deploy no Cloud Run | **No ar**: https://quiz-viver-lw2pi32efa-uc.a.run.app (revisão `quiz-viver-00010-nzk`) |
+| Deploy no Cloud Run | **No ar**: https://quiz-viver-lw2pi32efa-uc.a.run.app (a revisão muda a cada deploy; ver `gcloud run revisions list`) |
 | Versão atual | Tag `v1.1.0` (commit `16a01bd`): resiliência do jogo, pódio por cliques, suspense e retomada. Depois dela, o commit `b6d0590` só ajustou o deploy. A `v1.0.0` continua disponível para rollback |
 | Evento de 08/11 | Concluído com sucesso (palestra com todos os participantes) |
 | Resiliência do jogo | Estado salvo no Firestore a cada mudança; se a instância cair, o jogo é retomado |
@@ -256,7 +256,9 @@ gcloud run services update quiz-viver --region us-central1 --update-secrets ADMI
 
 Para ver a versão no GitHub: `https://github.com/rafanonato/quiz-viver-/releases/tag/v1.0.0` (ou `git tag`).
 
-**Revisões do Cloud Run:** `quiz-viver-00010-nzk` é a revisão atual (v1.1.0, com a configuração de deploy corrigida). Para voltar à v1.0.0, use `quiz-viver-00002-nlm` (ou `-00001-gpf`).
+**Revisões do Cloud Run:** a revisão atual é a mais recente listada por `gcloud run revisions list --service quiz-viver --region us-central1`. Para voltar à v1.0.0, use `quiz-viver-00002-nlm` (ou `-00001-gpf`).
+
+Alterações só em arquivos `.md` não disparam deploy.
 
 **Revisões da v1.0.0:** `quiz-viver-00001-gpf` (primeiro deploy) e `quiz-viver-00002-nlm`.
 
